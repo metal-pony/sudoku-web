@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.*
+.npmrc
+# Build files
+build/
+dist/
+# Log + random output files
+log/
+out/
+adhoc/
+# Test coverage
+coverage/
+# IDE config
+.vscode/
+# DS_AnnoyingAsFuck_Store
+.DS_Store
