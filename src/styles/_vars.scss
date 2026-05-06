@@ -1,0 +1,69 @@
+@use 'sass:color';
+@use 'sass:list';
+@use 'sass:map';
+
+$spacing-values: (4px, 8px, 16px, 24px, 32px, 64px, 128px);
+$colors: (
+  'primary': #00aaff,
+  'secondary': #00ffaa,
+  'evil': #ff0033,
+  'warn': #ffdd00,
+  'dark': #282828,
+  'dark-grey': #565656,
+  'grey': #808080,
+  'light-grey': #cccccc,
+  'light': #f5f5f5,
+  'gold': #ccaa00
+);
+$shaded-colors: ('primary', 'secondary', 'evil', 'warn');
+
+:root {
+  // all color vars (non-shaded)
+  @each $name, $value in $colors { --#{$name}: #{$value}; }
+
+  // grey shades from 1 (dark) to 9 (light)
+  $g: -25.625;
+  @for $i from 1 through 9 {
+    --grey-#{$i}: #{color.adjust(
+      map.get($colors, 'light'),
+      $red: $g * ($i - 1), $green: $g * ($i - 1), $blue: $g * ($i - 1),
+      $space: rgb
+    )};
+  }
+
+  --deep-space-blue: #0c0c17;
+  --grey-blue: #1f2a55;
+  --deep-blue: #00123f;
+  --transparent: #000000ff;
+
+  --background-color: var(--dark);
+  --text-color: #c0c0f0;
+  --link-color: var(--primary);
+  --border-color: #var(--light);
+
+  // Shaded colors
+  @each $name in $shaded-colors {
+    // darker
+    @for $i from 1 through 9 {
+      --#{$name}-#{$i}: #{color.scale(
+        map.get($colors, $name),
+        $red: -10% * $i, $green: -10% * $i, $blue: -10% * $i,
+        $space: rgb
+      )};
+    }
+
+    // lighter
+    @for $i from 1 through 9 {
+      --#{$name}-light-#{$i}: #{color.scale(
+        map.get($colors, $name),
+        $red: 10% * $i, $green: 10% * $i, $blue: 10% * $i,
+        $space: rgb
+      )};
+    }
+  }
+
+  // Spacing
+  @for $i from 0 to list.length($spacing-values) {
+    --spacing-#{$i}: #{list.nth($spacing-values, $i+1)};
+  }
+}
