@@ -1,0 +1,235 @@
+@use './vars' as v;
+
+:root {
+  --background-color: var(--dark);
+  --text-color: var(--light-grey);
+  --link-color: var(--primary);
+  --link-color-visited: #a600fa;
+  --border-color: #var(--light);
+}
+
+body {
+  color: var(--text-color);
+  background-color: var(--background-color);
+
+  font-family: "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.5em;
+}
+
+h1 {
+  font-family: "Aldrich", sans-serif;
+  // font-weight: 400;
+  font-size: xx-large;
+  // font-weight: bolder;
+}
+h2 {
+  font-family: "Aldrich", sans-serif;
+  font-size: x-large;
+  // font-weight: bolder;
+}
+h3 {
+  font-family: "Aldrich", sans-serif;
+  font-size: large;
+  // font-weight: bolder;
+}
+h4 {
+  font-family: "Aldrich", sans-serif;
+  font-size: medium;
+  font-weight: normal;
+}
+
+small {
+  font-size: 0.8em;
+}
+
+.x-small { font-size: 0.7em; }
+.small { font-size: 0.8em; }
+.medium { font-size: 1em; }
+.large { font-size: 1.25em; }
+.x-large { font-size: 1.5em; }
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+
+  &:visited {
+    color: var(--link-color-visited);
+  }
+}
+
+em {
+  font-style: italic;
+}
+
+.mono {
+  font-family: "Kode Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.center {
+  justify-items: center;
+}
+
+.flex {
+  display: flex;
+
+  &.v { flex-direction: column; }
+  &.h { flex-direction: row; }
+  &.wrap { flex-wrap: wrap; }
+
+  &.start { justify-content: flex-start; }
+  &.center {
+    justify-content: center;
+    align-content: center;
+  }
+  &.end {
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .items-start { align-items: flex-start; }
+  .items-center { align-items: center; }
+  .items-end { align-items: flex-end; }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.no-print {
+  @media print {
+    display: none !important;
+  }
+}
+
+.page {
+  .page-header {
+    // font-family: "Kode Mono", monospace;
+    // text-align: center;
+
+    h1 {
+      font-family: "Kode Mono", monospace;
+      font-size: 3em;
+      font-weight: bolder;
+    }
+
+    a {
+      color: unset;
+    }
+
+    >.header-subtext {
+
+    }
+  }
+
+
+  .page-footer {
+
+
+    &.sticky {
+      position: fixed;
+      bottom: var(--spacing-1);
+    }
+  }
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.no-select {
+  user-select: none;
+  * {
+    user-select: none;
+  }
+}
+
+
+.border { border: 1px solid black; }
+.border-t { border-top: 1px solid black; }
+.border-r { border-right: 1px solid black; }
+.border-b { border-bottom: 1px solid black; }
+.border-l { border-left: 1px solid black; }
+.border-dashed { border-style: dashed; }
+.border-dots { border-style: dotted; }
+
+
+// Text, Border, and Background coloring
+@each $name, $value in v.$colors {
+  .#{$name} {
+    color: var(--#{$name});
+    & a { color: var(--#{$name}); }
+  }
+
+  .border-#{$name} { border-color: var(--#{$name}); }
+  .bg-#{$name} { background-color: var(--#{$name}); }
+
+  .hover-#{$name} {
+    &:hover {
+      color: var(--#{$name});
+      & a { color: var(--#{$name}); }
+    }
+  }
+  .hover-bg-#{$name} {
+     &:hover {
+      background-color: var(--#{$name});
+    }
+  }
+  .hover-border-#{$name} {
+     &:hover {
+      border-color: var(--#{$name});
+    }
+  }
+}
+
+@each $name, $value in v.$colors {
+  .active-#{$name} {
+    &:active {
+      color: var(--#{$name});
+      & a { color: var(--#{$name}); }
+    }
+  }
+  .active-bg-#{$name} {
+    &:active {
+      background-color: var(--#{$name});
+    }
+  }
+  .active-border-#{$name} {
+    &:active {
+      border-color: var(--#{$name});
+    }
+  }
+}
+
+// Additional desirable colors for things
+.bg-black { background-color: black; }
+.black {
+  color: black;
+  & a { color: black; }
+}
+.white {
+  color: white;
+  & a { color: white; }
+}
+
+.use-pointer {
+  cursor: pointer;
+}
+
+.header-bg-grad {
+  background: linear-gradient(var(--night), #0000);
+}
+
+.u-list {
+  list-style: circle;
+}
+
+.page-max-width {
+  max-width: 820px;
+}

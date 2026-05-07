@@ -8,6 +8,7 @@ $colors: (
   'secondary': #00ffaa,
   'evil': #ff0033,
   'warn': #ffdd00,
+  'night': #181818,
   'dark': #282828,
   'dark-grey': #565656,
   'grey': #808080,
@@ -35,11 +36,6 @@ $shaded-colors: ('primary', 'secondary', 'evil', 'warn');
   --grey-blue: #1f2a55;
   --deep-blue: #00123f;
   --transparent: #000000ff;
-
-  --background-color: var(--dark);
-  --text-color: #c0c0f0;
-  --link-color: var(--primary);
-  --border-color: #var(--light);
 
   // Shaded colors
   @each $name in $shaded-colors {
