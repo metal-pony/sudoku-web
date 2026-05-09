@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import './styles/index.scss';
 import AboutPage from './page-apps/AboutPage.jsx';
 import FourOhFourPage from './page-apps/FourOhFourPage.jsx';
+import GamePage from './page-apps/GamePage.jsx';
 
 // <div>s with this attribute will be used as a container by the React component
 // returned by the function at dataComponents[attribute.value].
@@ -24,6 +25,7 @@ const dataFns = {};
  * @type {Object<string, (div: HTMLDivElement) => React.ReactNode>}
  */
 const dataComponents = {
+  'app-game': (_div) => (<GamePage />),
   'app-about': (_div) => (<AboutPage />),
   'page-404': (_div) => (<FourOhFourPage />),
 };

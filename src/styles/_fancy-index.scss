@@ -52,6 +52,10 @@ small {
 .large { font-size: 1.25em; }
 .x-large { font-size: 1.5em; }
 
+.bold {
+  font-weight: bold;
+}
+
 a {
   color: var(--link-color);
   text-decoration: none;
@@ -68,7 +72,6 @@ em {
 .mono {
   font-family: "Kode Mono", monospace;
   font-optical-sizing: auto;
-  font-weight: 400;
   font-style: normal;
 }
 
@@ -232,4 +235,66 @@ em {
 
 .page-max-width {
   max-width: 820px;
+}
+
+
+@mixin clickyBtn {
+  cursor: pointer;
+  color: var(--dark);
+  border: 1px solid black;
+  border-radius: 8px;
+  box-shadow: 1px 2px grey;
+
+  &:hover {
+    border-color: var(--light-grey);
+  }
+
+  &:active {
+    border-color: black;
+    box-shadow: 0px 1px var(--light-grey);
+    transform: translate(1px, 1px);
+
+    &:disabled {
+      box-shadow: 1px 2px grey;
+      transform: none;
+    }
+  }
+
+  &:disabled {
+    cursor: unset;
+    background-color: grey;
+    &:hover {
+      border-color: black;
+    }
+  }
+}
+
+.clickyBtn {
+  @include clickyBtn;
+}
+
+@each $name, $value in v.$colors {
+  .clickyBtn-#{$name} {
+    @include clickyBtn;
+
+    background-color: var(--#{$name});
+  }
+
+  .clickyToggleBtn-#{$name} {
+    @include clickyBtn;
+
+    &:active {
+      box-shadow: 0px 1px grey;
+      transform: translate(1px, 1px);
+
+      &:disabled {
+        box-shadow: 1px 2px grey;
+        transform: none;
+      }
+    }
+
+    &.toggled {
+      background-color: var(--#{$name});
+    }
+  }
 }

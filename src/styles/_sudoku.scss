@@ -1,0 +1,195 @@
+.sudoku-board {
+  --sudoku-board-bg: black;
+  --sudoku-region-bg: black;
+  --sudoku-region-odd: black;
+  --sudoku-region-bg-odd: black;
+
+  --sudoku-cell-text: #0000ff;
+  --sudoku-cell-given-text: var(--dark);
+  --sudoku-cell-solved-text: var(--dark);
+  --sudoku-cell-selected-text: var(--dark);
+
+  --sudoku-cell-border: black;
+
+  --sudoku-cell-bg: var(--light);
+  --sudoku-cell-bg-given: var(--grey-3);
+  --sudoku-cell-bg-hover: #b4e6ff;
+  --sudoku-cell-bg-selected: #b4e6ff;
+  --sudoku-cell-bg-solved: #b4ffe6;
+  --sudoku-cell-bg-given-solved: #87c0ac;
+  --sudoku-cell-bg-sieve-item: #c04fd6;
+  --sudoku-cell-bg-region-selected: var(--light-grey);
+
+  // Background colors for invalid cells
+  --sudoku-invalid-1: #ffaaaa;
+  --sudoku-invalid-2: #ff7777;
+  --sudoku-invalid-3: #ff3333;
+  // Givens in an invalid area are highlighted slightly darker
+  --sudoku-invalid-1-given: #663636;
+  --sudoku-invalid-2-given: #aa5a5a;
+  --sudoku-invalid-3-given: #ff8888;
+
+  // Default size: medium
+  --size-m-region-gap: 2px;
+  --size-m-cell-gap: 1px;
+  --size-m-cell-size: 26px;
+  --size-m-font-size: 22px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: var(--size-m-region-gap);
+  background-color: var(--sudoku-board-bg);
+  border: 1px solid var(--sudoku-board-bg);
+
+  font-family: "LXGW WenKai Mono TC", monospace;
+  font-weight: 400;
+  font-style: normal;
+
+  >div.sudoku-region {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-gap: var(--size-m-cell-gap);
+
+    >.sudoku-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--sudoku-cell-text);
+      background-color: var(--sudoku-cell-bg);
+      border: none;
+
+      width: var(--size-m-cell-size);
+      height: var(--size-m-cell-size);
+      font-size: var(--size-m-font-size);
+
+      &:hover {
+        background-color: var(--sudoku-cell-bg-hover);
+      }
+
+      &:focus {
+        background-color: var(--sudoku-cell-bg-selected);
+        // color: var(--sudoku-cell-selected-color);
+      }
+
+      &.invalid-1 { background-color: var(--sudoku-invalid-1); }
+      &.invalid-2 { background-color: var(--sudoku-invalid-2); }
+      &.invalid-3 { background-color: var(--sudoku-invalid-3); }
+
+      &.given {
+        background-color: var(--sudoku-cell-bg-given);
+        color: var(--sudoku-cell-given-text);
+        font-weight: 700;
+
+        &.solved {
+          background-color: var(--sudoku-cell-bg-given-solved);
+          color: var(--sudoku-cell-solved-text);
+        }
+      }
+
+      &.solved {
+        background-color: var(--sudoku-cell-bg-solved);
+        color: var(--sudoku-cell-solved-text);
+      }
+
+      &:focus-visible {
+        outline: none;
+      }
+
+      &.sieve-item {
+        background-color: var(--sudoku-cell-bg-sieve-item);
+      }
+    }
+  }
+
+  &.size-xs {
+    --size-xs-region-gap: 1px;
+    --size-xs-cell-gap: 0px;
+    --size-xs-cell-size: 12px;
+    --size-xs-font-size: 12px;
+
+    gap: var(--size-xs-region-gap);
+
+    >div.sudoku-region {
+      gap: var(--size-xs-cell-gap);
+
+      >.sudoku-cell {
+        width: var(--size-xs-cell-size);
+        height: var(--size-xs-cell-size);
+        font-size: var(--size-xs-font-size);
+      }
+    }
+  }
+
+  &.size-s {
+    --size-s-region-gap: 2px;
+    --size-s-cell-gap: 1px;
+    --size-s-cell-size: 16px;
+    --size-s-font-size: 16px;
+
+    gap: var(--size-s-region-gap);
+
+    >div.sudoku-region {
+      gap: var(--size-s-cell-gap);
+
+      >.sudoku-cell {
+        width: var(--size-s-cell-size);
+        height: var(--size-s-cell-size);
+        font-size: var(--size-s-font-size);
+      }
+    }
+  }
+
+  &.size-m {
+    gap: var(--size-m-region-gap);
+
+    >div.sudoku-region {
+      gap: var(--size-m-cell-gap);
+
+      >.sudoku-cell {
+        width: var(--size-m-cell-size);
+        height: var(--size-m-cell-size);
+        font-size: var(--size-m-font-size);
+      }
+    }
+  }
+
+  &.size-l {
+    --size-l-region-gap: 4px;
+    --size-l-cell-gap: 2px;
+    --size-l-cell-size: 36px;
+    --size-l-font-size: 28px;
+
+    gap: var(--size-l-region-gap);
+
+    >div.sudoku-region {
+      gap: var(--size-l-cell-gap);
+
+      >.sudoku-cell {
+        width: var(--size-l-cell-size);
+        height: var(--size-l-cell-size);
+        font-size: var(--size-l-font-size);
+      }
+    }
+  }
+
+  &.size-xl {
+    --size-xl-region-gap: 4px;
+    --size-xl-cell-gap: 2px;
+    --size-xl-cell-size: 40px;
+    --size-xl-font-size: 32px;
+
+    gap: var(--size-xl-region-gap);
+
+    >div.sudoku-region {
+      gap: var(--size-xl-cell-gap);
+
+      >.sudoku-cell {
+        width: var(--size-xl-cell-size);
+        height: var(--size-xl-cell-size);
+        font-size: var(--size-xl-font-size);
+      }
+    }
+  }
+}
