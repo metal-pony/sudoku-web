@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import Page from '../components/page/Page';
-import Article from '../components/Article';
-import { SudokuProvider } from '../components/sudoku/SudokuContext';
-import { Sudoku } from '@metal-pony/sudoku-js';
-import SudokuBoard, { SIZES } from '../components/sudoku/SudokuBoard';
 import classNames from 'classnames';
+import { Sudoku } from '@metal-pony/sudoku-js';
+
+import Article from '../components/Article';
+import Page from '../components/page/Page';
+import SudokuBoard, { SIZES } from '../components/sudoku/SudokuBoard';
 import { range, shuffle, swapAllInArr } from '../util/arrays';
 import { scrambleTogether } from '../util/sudoku-utils';
 
