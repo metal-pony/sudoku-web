@@ -58,11 +58,13 @@ const Cell = React.memo(function Cell({
  * @param {number} props.size Number associated with `SIZES`. 0 (smallest) through 4 (largest). Default `2` (medium).
  * @param {boolean} props.showValidity Whether the board cells will change if a cell or area becomes invalid. Default `true`.
  * @param {boolean} props.interactive Whether the board will respond to clicks. Default `true`.
+ * @param {string} props.className
  */
 export function SudokuBoard({
   interactive = true,
   showValidity = true,
-  size = 2
+  size = 2,
+  className,
 }) {
   const sudokuCtx = useSudoku();
   const game = new Sudoku(sudokuCtx.digits);
@@ -96,16 +98,13 @@ export function SudokuBoard({
   });
 
   const regions = indicesFor.region.map((indices, ri) => (
-    <div
-      key={`sregion-${ri}`}
-      className='sudoku-region'
-    >
+    <div key={`sregion-${ri}`} className='sudoku-region'>
       { indices.map(ci => cells[ci]) }
     </div>
   ));
 
   return (
-    <div className='flex center'>
+    <div className={classNames('flex center', className)}>
       <div
         className={classNames('sudoku-board', SIZES[size])}
         onContextMenu={(ev)=>{ev.preventDefault();}}
