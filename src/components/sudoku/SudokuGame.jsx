@@ -4,10 +4,17 @@ import { Sudoku } from '@metal-pony/sudoku-js';
 import { scrambleTogether } from '../../util/sudoku-utils';
 import { SudokuProvider, useSudoku, useSudokuDispatch } from './SudokuContext';
 import SudokuBoard from './SudokuBoard';
+import classNames from 'classnames';
+
 
 export function SudokuGame({}) {
   const sudokuCtx = useSudoku();
   const dispatch = useSudokuDispatch();
+
+  const [timeStarted, setTimeStarted] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const hasStarted = timeStarted > 0;
 
   /** @param {MouseEvent} ev */
   const newGameBtnClick = (ev) => {
@@ -18,9 +25,10 @@ export function SudokuGame({}) {
       sudoku: newGame,
       givens: newGame.board
     });
+    setIsPaused(false);
+    setTimeStarted(0);
   };
 
-  const [isPaused, setIsPaused] = useState(false);
   /** @param {MouseEvent} ev */
   // const pauseResumeBtnClick = (ev) => {
   //   ev.preventDefault();
@@ -43,6 +51,22 @@ export function SudokuGame({}) {
       givens: scrambled[1]
     });
   };
+
+  const gameStartOverlay = (
+    <div className={classNames('sudoku-board-overlay', { 'hidden': hasStarted })}>
+      <button
+        className='clickyBtn-secondary btn-lg px---- py- mono bold x-large'
+        onClick={(ev)=> {
+          ev.preventDefault();
+          if (!hasStarted) {
+            setTimeStarted(Date.now());
+          }
+        }}
+      >
+        Start
+      </button>
+    </div>
+  );
 
   return (
     <div className='flex v row-gap---'>
@@ -77,10 +101,16 @@ export function SudokuGame({}) {
         </button>
       </div>
 
-      <SudokuBoard
-        size={3}
-        interactive={!isPaused}
+      <div className='flex center items-center'>
+        <SudokuBoard
+          className={classNames('filter-transition', {
+            'blur-6': (!hasStarted || isPaused)
+          })}
+          size={3}
+          interactive={!isPaused && !sudokuCtx.isSolved}
       />
+        { gameStartOverlay }
+      </div>
     </div>
   );
 }
