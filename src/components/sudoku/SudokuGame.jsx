@@ -158,7 +158,7 @@ export function SudokuGame({}) {
             'blur-6': (!hasStarted || isPaused)
           })}
           size={3}
-          interactive={!isPaused && !sudokuCtx.isSolved}
+          interactive={hasStarted && !isPaused && !sudokuCtx.isSolved}
         />
         { gameStartOverlay }
       </div>

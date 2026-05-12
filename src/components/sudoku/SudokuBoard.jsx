@@ -43,7 +43,7 @@ const Cell = React.memo(function Cell({
   return (
     <div
       key={`scell-${cellIndex}`}
-      className={classNames('sudoku-cell no-select', className)}
+      className={classNames('sudoku-cell no-select', className, { interactive })}
       onClick={interactive ? onclick : null}
       onContextMenu={interactive ? onContextMenu : null}
     >
