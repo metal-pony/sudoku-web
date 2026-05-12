@@ -6,8 +6,8 @@ export function BasePage({ children }) {
     <Page className='center'>
       <Page.Nav className='flex h w-full h-32px pt-- mono bold'>
         <div className='flex h col-gap--- pl---- left'>
-          <a className='grey hover-light active-secondary' href='/'>Home</a>
-          <a className='grey hover-light active-secondary' href='/about.html'>About</a>
+          <a className='grey hover-light active-secondary' href='./'>Home</a>
+          <a className='grey hover-light active-secondary' href='./about.html'>About</a>
         </div>
       </Page.Nav>
 
