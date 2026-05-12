@@ -37,8 +37,25 @@ function Header({
 /**
  *
  * @param {object} props
+ * @param {string} props.className
+ * @param {} props.children
+ */
+function Nav({
+  className,
+  children
+}) {
+  return (
+    <nav className={classNames('page-nav', className)}>
+      { children }
+    </nav>
+  );
+}
+
+/**
+ *
+ * @param {object} props
  * @param {string[]} props.className
- * @param {JSX.Element} props.children
+ * @param {} props.children
  */
 function Footer({ className, children }) {
   return (
@@ -52,7 +69,7 @@ function Footer({ className, children }) {
  *
  * @param {object} props
  * @param {string[]} props.className
- * @param {JSX.Element} props.children
+ * @param {} props.children
  */
 export function Page({ className, children }) {
   return (
@@ -63,6 +80,7 @@ export function Page({ className, children }) {
 }
 
 Page.Header = Header;
+Page.Nav = Nav;
 Page.Footer = Footer;
 
 export default Page;
