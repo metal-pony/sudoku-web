@@ -64,13 +64,15 @@
       height: var(--size-m-cell-size);
       font-size: var(--size-m-font-size);
 
-      &:hover {
-        background-color: var(--sudoku-cell-bg-hover);
-      }
+      &.interactive {
+        &:hover {
+          background-color: var(--sudoku-cell-bg-hover);
+        }
 
-      &:focus {
-        background-color: var(--sudoku-cell-bg-selected);
-        // color: var(--sudoku-cell-selected-color);
+        &:focus {
+          background-color: var(--sudoku-cell-bg-selected);
+          // color: var(--sudoku-cell-selected-color);
+        }
       }
 
       &.invalid-1 { background-color: var(--sudoku-invalid-1); }
