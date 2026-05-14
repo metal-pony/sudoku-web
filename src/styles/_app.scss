@@ -1,0 +1,12 @@
+
+.page {
+  --page-nav-height: 64px;
+
+  .page-nav {
+    height: var(--page-nav-height);
+  }
+
+  .page-main {
+    padding-top: calc(2 * var(--page-nav-height));
+  }
+}

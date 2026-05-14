@@ -120,7 +120,7 @@ export function SudokuGame({}) {
   );
 
   return (
-    <div className='flex v row-gap---'>
+    <div className='flex v row-gap-- items-center'>
       <div className='flex h col-gap-- center'>
         <button
           className='clickyBtn-gold px-- py- mono bold'
@@ -154,7 +154,7 @@ export function SudokuGame({}) {
 
       <div className='flex center items-center'>
         <SudokuBoard
-          className={classNames('filter-transition', {
+          className={classNames('anim anim-filter anim-med', {
             'blur-6': (!hasStarted || isPaused)
           })}
           size={3}
@@ -166,7 +166,7 @@ export function SudokuGame({}) {
       <span
         ref={timerTextRef}
         className={classNames(
-          'py- text-center small mono',
+          'text-center small mono',
           sudokuCtx.isSolved ? 'secondary' : 'grey'
         )}
       >{timerText}</span>
