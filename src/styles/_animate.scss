@@ -1,0 +1,54 @@
+
+@mixin rotate($angle) {
+  .rotate-#{$angle} {
+    -webkit-transform: rotate(#{$angle}deg);
+    transform: rotate(#{$angle}deg);
+  }
+}
+
+@for $a from 1 through 8 {
+  @include rotate(45 * $a);
+  @include rotate(-45 * $a);
+}
+
+@for $b from 1 through 8 {
+  .blur-#{$b} { filter: blur(#{$b}px); }
+}
+
+.anim {
+  transition-duration: 0.5s;
+  transition-timing-function: linear;
+}
+
+$anim-named-durations: (
+  'fast': 0.25,
+  'med': 0.5,
+  'slow': 1,
+);
+@mixin anim-duration($val) {
+  transition-duration: #{$val}s;
+}
+// Named duration classes
+@each $name, $value in $anim-named-durations {
+  .anim-#{$name} {
+    @include anim-duration($value);
+  }
+}
+// Preset animation duractions in seconds
+@for $t from 1 through 8 {
+  .anim-duration-#{$t}s {
+    @include anim-duration($t);
+  }
+}
+
+.anim-right {
+  transition-property: right;
+}
+
+.anim-transform {
+  transition-property: transform;
+}
+
+.anim-filter {
+  transition-property: filter;
+}
