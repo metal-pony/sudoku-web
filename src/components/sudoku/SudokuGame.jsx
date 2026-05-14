@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Sudoku } from '@metal-pony/sudoku-js';
 
 import { scrambleTogether } from '../../util/sudoku-utils';
 import { SudokuProvider, useSudoku, useSudokuDispatch } from './SudokuContext';
 import SudokuBoard from './SudokuBoard';
 import classNames from 'classnames';
+import { SettingsContext } from '../../page-apps/common/AppSettingsContext';
 
 const MS_PER_HR = 3_600_000;
 const MS_PER_MIN = 60_000;
@@ -25,6 +26,7 @@ function formatTimeText(timeMs) {
 }
 
 export function SudokuGame({}) {
+  const {appState, setAppState} = useContext(SettingsContext);
   const sudokuCtx = useSudoku();
   const dispatch = useSudokuDispatch();
 
@@ -41,7 +43,7 @@ export function SudokuGame({}) {
     const cleanupFns = [];
 
     // Only set the timer update if the game is in progress.
-    if (timeStarted > 0 && timeSolved === 0) {
+    if (appState.showTimer && timeStarted > 0 && timeSolved === 0 && !isPaused) {
       const intervalId = setInterval(() => {
         timerTextRef.current.innerText = `Time: ${formatTimeText(Date.now() - timeStarted)}`;
       }, 1000);
@@ -53,7 +55,7 @@ export function SudokuGame({}) {
     return (() => {
       cleanupFns.forEach(fn => { fn(); });
     });
-  }, [timeStarted, timeSolved]);
+  }, [timeStarted, timeSolved, appState.showTimer, isPaused]);
 
 
   /** @param {MouseEvent} ev */
@@ -68,7 +70,7 @@ export function SudokuGame({}) {
     setIsPaused(false);
     setTimeStarted(0);
     setTimeSolved(0);
-    timerTextRef.current.innerText = ''
+    timerTextRef.current.innerText = '';
   };
 
   /** @param {MouseEvent} ev */
@@ -95,12 +97,14 @@ export function SudokuGame({}) {
   };
 
   let timerText = '';
+  const now = Date.now();
   if (sudokuCtx.isSolved) {
-    const now = Date.now();
     if (timeSolved === 0) setTimeSolved(now);
     if (timeStarted === 0) setTimeStarted(now);
 
     timerText = `Time: ${formatTimeText(timeSolved - timeStarted)}`;
+  } else if (hasStarted) {
+    timerText = `Time: ${formatTimeText(now - timeStarted)}`;
   }
 
   const gameStartOverlay = (
@@ -169,7 +173,7 @@ export function SudokuGame({}) {
           'text-center small mono',
           sudokuCtx.isSolved ? 'secondary' : 'grey'
         )}
-      >{timerText}</span>
+      >{ appState.showTimer && timerText}</span>
     </div>
   );
 }
