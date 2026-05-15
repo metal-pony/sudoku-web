@@ -30,8 +30,9 @@ function BasePageNav({ settingsOpen, setSettingsOpen }) {
   )));
 
   return (
-    <Page.Nav className='flex h w-full items-center sticky-top bg-night border-b border-gold mono bold'>
-      <div className='nav-left flex h col-gap---- pl---- left small'>
+    <Page.Nav className='flex v w-full items-center sticky-top bg-night border-b border-gold mono bold'>
+      <div className='flex h w-full h-full items-center'>
+        <div className='nav-left flex h col-gap--- center'>
         { navigation }
       </div>
       <div className='nav-center flex'>
@@ -39,7 +40,7 @@ function BasePageNav({ settingsOpen, setSettingsOpen }) {
           <h1>Sudoku.JS</h1>
         </header>
       </div>
-      <div className='nav-right flex end pr----'>
+        <div className='nav-right flex center'>
         <a
           className={classNames('active-secondary use-pointer no-select', settingsOpen ? 'secondary' : 'grey hover-light')}
           onClick={(ev) => {
@@ -51,6 +52,7 @@ function BasePageNav({ settingsOpen, setSettingsOpen }) {
             'rotate--180': settingsOpen
           })}></i>
         </a>
+        </div>
       </div>
     </Page.Nav>
   );

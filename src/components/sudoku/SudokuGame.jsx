@@ -32,6 +32,9 @@ export function SudokuGame({}) {
 
   const [timeStarted, setTimeStarted] = useState(0);
   const [timeSolved, setTimeSolved] = useState(0);
+
+  const [timePaused, setTimePaused] = useState(0);
+  const [accumulatedPauseTime, setAccumulatedPauseTime] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
   const hasStarted = timeStarted > 0;
@@ -45,7 +48,8 @@ export function SudokuGame({}) {
     // Only set the timer update if the game is in progress.
     if (appState.showTimer && timeStarted > 0 && timeSolved === 0 && !isPaused) {
       const intervalId = setInterval(() => {
-        timerTextRef.current.innerText = `Time: ${formatTimeText(Date.now() - timeStarted)}`;
+        const t = Date.now() - timeStarted - accumulatedPauseTime;
+        timerTextRef.current.innerText = `Time: ${formatTimeText(t)}`;
       }, 1000);
       cleanupFns.push(() => {
         clearInterval(intervalId);
@@ -70,20 +74,34 @@ export function SudokuGame({}) {
     setIsPaused(false);
     setTimeStarted(0);
     setTimeSolved(0);
+    setTimePaused(0);
+    setAccumulatedPauseTime(0);
     timerTextRef.current.innerText = '';
   };
 
   /** @param {MouseEvent} ev */
-  // const pauseResumeBtnClick = (ev) => {
-  //   ev.preventDefault();
-  //   // On resume => scramble board
-  //   if (isPaused) {
-  //     const scrambled = scrambleTogether([board, givens]);
-  //     setBoard(scrambled[0]);
-  //     setGivens(scrambled[1]);
-  //   }
-  //   setIsPaused(!isPaused);
-  // };
+  const pauseResumeBtnClick = (ev) => {
+    ev.preventDefault();
+
+    // Unless the game is active, the button should not be rendered.
+    // But ensure clicking it does nothing.
+    if (!hasStarted || sudokuCtx.isSolved) return;
+
+    // On resume => scramble board
+    if (isPaused) {
+      setAccumulatedPauseTime(accumulatedPauseTime + Date.now() - timePaused);
+
+      const scrambled = scrambleTogether([sudokuCtx.digits, sudokuCtx.givens]);
+      dispatch({
+        type: 'sync',
+        sudoku: new Sudoku(scrambled[0]),
+        givens: scrambled[1]
+      });
+    } else {
+      setTimePaused(Date.now());
+    }
+    setIsPaused(!isPaused);
+  };
 
   /** @param {MouseEvent} ev */
   const shuffleBtnClick = (ev) => {
@@ -102,9 +120,9 @@ export function SudokuGame({}) {
     if (timeSolved === 0) setTimeSolved(now);
     if (timeStarted === 0) setTimeStarted(now);
 
-    timerText = `Time: ${formatTimeText(timeSolved - timeStarted)}`;
+    timerText = `Time: ${formatTimeText(timeSolved - timeStarted - accumulatedPauseTime)}`;
   } else if (hasStarted) {
-    timerText = `Time: ${formatTimeText(now - timeStarted)}`;
+    timerText = `Time: ${formatTimeText(now - timeStarted - accumulatedPauseTime)}`;
   }
 
   const gameStartOverlay = (
@@ -151,7 +169,6 @@ export function SudokuGame({}) {
         >
           <div className='flex h col-gap- center items-center'>
             <i className='fa-solid fa-shuffle fa-lg'></i>&nbsp;Shuffle
-
           </div>
         </button>
       </div>
@@ -174,6 +191,21 @@ export function SudokuGame({}) {
           sudokuCtx.isSolved ? 'secondary' : 'grey'
         )}
       >{ appState.showTimer && timerText}</span>
+      {
+        (hasStarted && !sudokuCtx.isSolved) &&
+        <button
+          className='w-128px clickyBtn-gold px--- py- mono bold'
+          onClick={pauseResumeBtnClick}
+        >
+          <div className='flex h col-gap- center items-center'>
+            {
+              isPaused ?
+                <><i className='fa-solid fa-play fa-lg'></i>&nbsp;Resume</> :
+                <><i className='fa-solid fa-pause fa-lg'></i>&nbsp;Pause</>
+            }
+          </div>
+        </button>
+      }
     </div>
   );
 }
