@@ -37,7 +37,8 @@ export function SudokuGame({}) {
   const [accumulatedPauseTime, setAccumulatedPauseTime] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const hasStarted = timeStarted > 0;
+  const hasStarted = (timeStarted > 0);
+  const gameInProgress = (hasStarted && !sudokuCtx.isSolved);
 
   /** @type {React.RefObject<HTMLSpanElement>} */
   const timerTextRef = useRef(null);
@@ -45,11 +46,16 @@ export function SudokuGame({}) {
   useEffect(() => {
     const cleanupFns = [];
 
+    // If showTimer setting changed while the game was paused, unpause the game.
+    if (isPaused && !appState.showTimer) {
+      setIsPaused(false);
+    }
+
     // Only set the timer update if the game is in progress.
-    if (appState.showTimer && timeStarted > 0 && timeSolved === 0 && !isPaused) {
+    if (gameInProgress && appState.showTimer && !isPaused) {
       const intervalId = setInterval(() => {
         const t = Date.now() - timeStarted - accumulatedPauseTime;
-        timerTextRef.current.innerText = `Time: ${formatTimeText(t)}`;
+        timerTextRef.current.innerText = formatTimeText(t);
       }, 1000);
       cleanupFns.push(() => {
         clearInterval(intervalId);
@@ -60,7 +66,6 @@ export function SudokuGame({}) {
       cleanupFns.forEach(fn => { fn(); });
     });
   }, [timeStarted, timeSolved, appState.showTimer, isPaused]);
-
 
   /** @param {MouseEvent} ev */
   const newGameBtnClick = (ev) => {
@@ -76,7 +81,7 @@ export function SudokuGame({}) {
     setTimeSolved(0);
     setTimePaused(0);
     setAccumulatedPauseTime(0);
-    timerTextRef.current.innerText = '';
+    if (timerTextRef.current) timerTextRef.current.innerText = '';
   };
 
   /** @param {MouseEvent} ev */
@@ -120,9 +125,9 @@ export function SudokuGame({}) {
     if (timeSolved === 0) setTimeSolved(now);
     if (timeStarted === 0) setTimeStarted(now);
 
-    timerText = `Time: ${formatTimeText(timeSolved - timeStarted - accumulatedPauseTime)}`;
+    timerText = formatTimeText(timeSolved - timeStarted - accumulatedPauseTime);
   } else if (hasStarted) {
-    timerText = `Time: ${formatTimeText(now - timeStarted - accumulatedPauseTime)}`;
+    timerText = formatTimeText(now - timeStarted - accumulatedPauseTime);
   }
 
   const gameStartOverlay = (
@@ -141,6 +146,22 @@ export function SudokuGame({}) {
     </div>
   );
 
+  const gameTime = (
+    <div className='flex h col-gap-'>
+      <button
+        className='w-24px h-24px clickyBtn-gold mono bold'
+        onClick={pauseResumeBtnClick}
+        disabled={!hasStarted || sudokuCtx.isSolved}
+      >
+        <i className={`fa-solid fa-${isPaused ? 'play' : 'pause'}`}></i>
+      </button>
+      <span
+        ref={timerTextRef}
+        className={`text-center small mono ${sudokuCtx.isSolved ? 'secondary' : 'grey'}`}
+      >{ timerText }</span>
+    </div>
+  );
+
   return (
     <div className='flex v row-gap-- items-center'>
       <div className='flex h col-gap-- center'>
@@ -150,18 +171,6 @@ export function SudokuGame({}) {
         >
           New Game
         </button>
-
-        {/* TODO Pause button - stops timer; obscures board; scrambles board upon resuming */}
-        {/* <button
-          className={classNames('w-128px clickyToggleBtn-gold px--- py- mono bold', {
-            'toggled': !isPaused
-          })}
-          onClick={pauseResumeBtnClick}
-        >
-          <i
-            className={classNames('fa-solid fa-lg', isPaused ? 'fa-play' : 'fa-pause')}
-          ></i>&nbsp;{ isPaused ? 'Resume' : 'Pause'}
-        </button> */}
 
         <button
           className='w-128px clickyBtn-gold px--- py- mono bold'
@@ -179,33 +188,12 @@ export function SudokuGame({}) {
             'blur-6': (!hasStarted || isPaused)
           })}
           size={3}
-          interactive={hasStarted && !isPaused && !sudokuCtx.isSolved}
+          interactive={gameInProgress && !isPaused}
         />
         { gameStartOverlay }
       </div>
 
-      <span
-        ref={timerTextRef}
-        className={classNames(
-          'text-center small mono',
-          sudokuCtx.isSolved ? 'secondary' : 'grey'
-        )}
-      >{ appState.showTimer && timerText}</span>
-      {
-        (hasStarted && !sudokuCtx.isSolved) &&
-        <button
-          className='w-128px clickyBtn-gold px--- py- mono bold'
-          onClick={pauseResumeBtnClick}
-        >
-          <div className='flex h col-gap- center items-center'>
-            {
-              isPaused ?
-                <><i className='fa-solid fa-play fa-lg'></i>&nbsp;Resume</> :
-                <><i className='fa-solid fa-pause fa-lg'></i>&nbsp;Pause</>
-            }
-          </div>
-        </button>
-      }
+      { (hasStarted && appState.showTimer) && gameTime }
     </div>
   );
 }

@@ -88,6 +88,15 @@ export function AboutPage({}) {
 
           <div className='pt-- px-- flex v row-gap-'>
             <ChangeBlogEntry
+              title='Pause'
+              date='May 15th, 2026'
+              items={[
+                'Added the settings drawer',
+                'Game can now be paused, and shuffles upon resuming',
+              ]}
+            />
+
+            <ChangeBlogEntry
               title='Time for Game'
               date='May 10th, 2026'
               items={[
