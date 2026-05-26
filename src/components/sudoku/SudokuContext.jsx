@@ -25,7 +25,7 @@ import React, { createContext, useContext, useReducer } from 'react';
 
 /**
  * @typedef {object} SudokuAction
- * @property {'setDigit' | 'sync'} type
+ * @property {'setDigit' | 'addCandidate' | 'removeCandidate' | 'sync'} type
  * @property {number} cellIndex
  * @property {number} digit
  * @property {Sudoku} sudoku
@@ -57,15 +57,6 @@ export function stateFromGame(game, givens = []) {
     isValid: game.isValid(),
     isSolved: game.isSolved()
   });
-}
-
-/**
- *
- * @param {SudokuState} state
- * @returns {Sudoku}
- */
-function hydrateGameFromState(state) {
-  return new Sudoku(state.cells.map(cell => cell.digit));
 }
 
 /**
@@ -112,24 +103,28 @@ function sudokuReducer(prevState, action) {
   };
   const ci = action.cellIndex || 0;
   const digit = action.digit || 0;
-  const game = Sudoku.fromState({
-    digits: prevState.digits,
-    candidates: prevState.candidates
-  });
+  let game = Sudoku.fromState(prevState);
 
   switch(action.type) {
     case 'setDigit': {
       if (prevState.givens[ci] > 0) break;
-      // HACK: if game was flagged invalid internally prior to setting digit,
-      // it won't be automatically be flagged valid again, and internal constraints
-      // tracking will be messed up.
-      // So we construct a new game here with the new digit set.
-      newState.digits[ci] = digit;
-      const _game = new Sudoku(newState.digits);
-      newState.candidates[ci] = _game._board[ci];
-      newState.numEmptyCells = _game.numEmptyCells;
-      newState.isValid = _game.isValid();
-      newState.isSolved = _game.isSolved();
+
+      game.setDigit(digit, ci);
+      newState.digits = game.board;
+      newState.candidates = game._board;
+      newState.numEmptyCells = game.numEmptyCells;
+      newState.isValid = game.isValid();
+      newState.isSolved = game.isSolved();
+      break;
+    }
+    case 'addCandidate': {
+      if (prevState.givens[ci] > 0) break;
+      newState.candidates[ci] |= encode(digit);
+      break;
+    }
+    case 'removeCandidate': {
+      if (prevState.givens[ci] > 0) break;
+      newState.candidates[ci] &= ~encode(digit);
       break;
     }
     case 'sync': {
