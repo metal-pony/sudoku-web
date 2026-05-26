@@ -30,15 +30,15 @@
   --sudoku-invalid-3-given: #ff8888;
 
   // Default size: medium
-  --size-m-region-gap: 2px;
-  --size-m-cell-gap: 1px;
-  --size-m-cell-size: 26px;
-  --size-m-font-size: 22px;
+  --region-gap: 2px;
+  --cell-gap: 1px;
+  --cell-size: 27px;
+  --font-size: 22px;
 
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  gap: var(--size-m-region-gap);
+
   background-color: var(--sudoku-board-bg);
   border: 1px solid var(--sudoku-board-bg);
 
@@ -50,7 +50,6 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    grid-gap: var(--size-m-cell-gap);
 
     >.sudoku-cell {
       display: flex;
@@ -60,9 +59,28 @@
       background-color: var(--sudoku-cell-bg);
       border: none;
 
-      width: var(--size-m-cell-size);
-      height: var(--size-m-cell-size);
-      font-size: var(--size-m-font-size);
+      &.candidates-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+      }
+
+      >.sudoku-cell-candidate {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &.interactive {
+          &:hover {
+            background-color: #6eb9de;
+          }
+
+          &:focus {
+            background-color: var(--sudoku-cell-bg-selected);
+            // color: var(--sudoku-cell-selected-color);
+          }
+        }
+      }
 
       &.interactive {
         &:hover {
@@ -106,91 +124,46 @@
   }
 
   &.size-xs {
-    --size-xs-region-gap: 1px;
-    --size-xs-cell-gap: 0px;
-    --size-xs-cell-size: 12px;
-    --size-xs-font-size: 12px;
-
-    gap: var(--size-xs-region-gap);
-
-    >div.sudoku-region {
-      gap: var(--size-xs-cell-gap);
-
-      >.sudoku-cell {
-        width: var(--size-xs-cell-size);
-        height: var(--size-xs-cell-size);
-        font-size: var(--size-xs-font-size);
-      }
-    }
+    --region-gap: 1px;
+    --cell-gap: 0px;
+    --cell-size: 12px;
+    --font-size: 12px;
   }
 
   &.size-s {
-    --size-s-region-gap: 2px;
-    --size-s-cell-gap: 1px;
-    --size-s-cell-size: 16px;
-    --size-s-font-size: 16px;
-
-    gap: var(--size-s-region-gap);
-
-    >div.sudoku-region {
-      gap: var(--size-s-cell-gap);
-
-      >.sudoku-cell {
-        width: var(--size-s-cell-size);
-        height: var(--size-s-cell-size);
-        font-size: var(--size-s-font-size);
-      }
-    }
+    --region-gap: 2px;
+    --cell-gap: 1px;
+    --cell-size: 18px;
+    --font-size: 16px;
   }
 
-  &.size-m {
-    gap: var(--size-m-region-gap);
-
-    >div.sudoku-region {
-      gap: var(--size-m-cell-gap);
-
-      >.sudoku-cell {
-        width: var(--size-m-cell-size);
-        height: var(--size-m-cell-size);
-        font-size: var(--size-m-font-size);
-      }
-    }
-  }
+  &.size-m {}
 
   &.size-l {
-    --size-l-region-gap: 4px;
-    --size-l-cell-gap: 2px;
-    --size-l-cell-size: 36px;
-    --size-l-font-size: 28px;
-
-    gap: var(--size-l-region-gap);
-
-    >div.sudoku-region {
-      gap: var(--size-l-cell-gap);
-
-      >.sudoku-cell {
-        width: var(--size-l-cell-size);
-        height: var(--size-l-cell-size);
-        font-size: var(--size-l-font-size);
-      }
-    }
+    --region-gap: 4px;
+    --cell-gap: 2px;
+    --cell-size: 36px;
+    --font-size: 28px;
   }
 
   &.size-xl {
-    --size-xl-region-gap: 4px;
-    --size-xl-cell-gap: 2px;
-    --size-xl-cell-size: 40px;
-    --size-xl-font-size: 32px;
+    --region-gap: 4px;
+    --cell-gap: 2px;
+    --cell-size: 42px;
+    --font-size: 32px;
+  }
 
-    gap: var(--size-xl-region-gap);
-
-    >div.sudoku-region {
-      gap: var(--size-xl-cell-gap);
-
-      >.sudoku-cell {
-        width: var(--size-xl-cell-size);
-        height: var(--size-xl-cell-size);
-        font-size: var(--size-xl-font-size);
+  gap: var(--region-gap);
+  >div.sudoku-region {
+    gap: var(--cell-gap);
+    >.sudoku-cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      font-size: var(--font-size);
+      >.sudoku-cell-candidate {
+        width: calc(var(--cell-size) / 3);
+        height: calc(var(--cell-size) / 3);
+        font-size: calc(var(--cell-size) / 3);
       }
     }
   }

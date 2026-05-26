@@ -177,6 +177,7 @@ export function SudokuGame({}) {
           })}
           size={3}
           interactive={gameInProgress && !isPaused}
+          showCandidates={appState.showCandidates}
         />
         { gameStartOverlay }
       </div>
