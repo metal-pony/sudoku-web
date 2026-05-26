@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { encode, indicesFor, Sudoku } from '@metal-pony/sudoku-js';
 
 import { range } from '../../util/arrays';
 import { useSudoku, useSudokuDispatch } from './SudokuContext';
+import { SettingsContext } from '../../page-apps/common/AppSettingsContext';
 
 /**
  *
@@ -67,6 +68,7 @@ const CandidateSubCell = React.memo(function CandidateSubCell({
   interactive
 }) {
   const dispatch = useSudokuDispatch();
+  const {appState} = useContext(SettingsContext);
   const isShown = (candidates & encode(digit)) > 0;
   const isLastCandidate = (candidates === encode(digit));
 
@@ -77,6 +79,7 @@ const CandidateSubCell = React.memo(function CandidateSubCell({
       const type = isLastCandidate ? 'setDigit' : (isShown ? 'removeCandidate' : 'addCandidate');
       dispatch({
         type, cellIndex, digit,
+        autoReduceCandidates: appState.autoReduceCandidates
       });
     }
   };
@@ -89,6 +92,7 @@ const CandidateSubCell = React.memo(function CandidateSubCell({
         type: 'setDigit',
         cellIndex,
         digit,
+        autoReduceCandidates: appState.autoReduceCandidates
       });
     }
   };

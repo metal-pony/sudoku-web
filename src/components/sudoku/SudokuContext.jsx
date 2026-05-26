@@ -11,6 +11,7 @@ import {
   Sudoku,
   SudokuSieve
 } from '@metal-pony/sudoku-js';
+import { CELL_NEIGHBORS } from '@metal-pony/sudoku-js/src/sudoku/Sudoku';
 import React, { createContext, useContext, useReducer } from 'react';
 
 /**
@@ -30,6 +31,7 @@ import React, { createContext, useContext, useReducer } from 'react';
  * @property {number} digit
  * @property {Sudoku} sudoku
  * @property {number[]} givens
+ * @property {boolean} autoReduceCandidates
  */
 
 /**
@@ -110,6 +112,20 @@ function sudokuReducer(prevState, action) {
       if (prevState.givens[ci] > 0) break;
 
       game.setDigit(digit, ci);
+
+      if (Boolean(action.autoReduceCandidates)) {
+        CELL_NEIGHBORS[ci].forEach(ni => {
+          if (game._digits[ni] > 0) return;
+          game._board[ni] &= ~game._cellConstraints(ni);
+
+          // If there are no more candidates for the cell, the board is invalid.
+          if (game._board[ni] <= 0) {
+            game._isValid = false;
+            game.setDigit(0, ni);
+          }
+        });
+      }
+
       newState.digits = game.board;
       newState.candidates = game._board;
       newState.numEmptyCells = game.numEmptyCells;
