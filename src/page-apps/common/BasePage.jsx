@@ -81,6 +81,20 @@ function BasePageSettingsDrawer({ settingsOpen, setSettingsOpen }) {
           />&nbsp;Show Timer
         </label>
 
+        <label htmlFor='showCandidates' className='no-select'>
+          <input
+            id='showCandidates'
+            name='showCandidates'
+            type='checkbox'
+            defaultChecked={appState.showCandidates}
+            onChange={(ev) => {
+              setAppState({
+                ...appState,
+                showCandidates: ev.target.checked
+              });
+            }}
+          />&nbsp;Show Candidates
+        </label>
       </div>
     </div>
   );

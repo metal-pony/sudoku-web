@@ -12,7 +12,9 @@ import React, { createContext, useContext, useReducer, useState } from 'react';
 const DEFAULT_SETTINGS = {
   puzzleSize: 3,
   puzzleDiff: 'easy',
-  showTimer: true
+  showTimer: true,
+  showCandidates: false,
+  autoReduceCandidates: true,
 };
 
 /**
