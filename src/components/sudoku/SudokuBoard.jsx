@@ -202,7 +202,7 @@ export function SudokuBoard({
   return (
     <div className={classNames('flex center', className)}>
       <div
-        className={classNames('sudoku-board', SIZES[size])}
+        className={classNames('sudoku-board', SIZES[size].className)}
         onContextMenu={(ev)=>{ev.preventDefault();}}
       >
         { regions }
@@ -214,6 +214,12 @@ export function SudokuBoard({
 /**
  * Supported sizes of SudokuBoard, where higher index = larger board.
  */
-export const SIZES = ['size-xs','size-s','size-m','size-l','size-xl'];
+export const SIZES = [
+  { className: 'size-xs', name: 'XSMALL' },
+  { className: 'size-s',  name: ' SMALL' },
+  { className: 'size-m',  name: 'MEDIUM' },
+  { className: 'size-l',  name: ' LARGE' },
+  { className: 'size-xl', name: 'XLARGE' }
+];
 
 export default SudokuBoard;

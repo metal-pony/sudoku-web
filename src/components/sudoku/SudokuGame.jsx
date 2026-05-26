@@ -175,7 +175,7 @@ export function SudokuGame({}) {
           className={classNames('anim anim-filter anim-med', {
             'blur-6': (!hasStarted || isPaused)
           })}
-          size={3}
+          size={appState.puzzleSize}
           interactive={gameInProgress && !isPaused}
           showCandidates={appState.showCandidates}
         />

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import Page from '../../components/page/Page';
 import classNames from 'classnames';
 import SettingsProvider, { SettingsContext } from './AppSettingsContext';
+import { SIZES } from '../../components/sudoku/SudokuBoard';
 
 const NAV_LINKS = [
   { text: 'Play', href: './' },
@@ -33,25 +34,25 @@ function BasePageNav({ settingsOpen, setSettingsOpen }) {
     <Page.Nav className='flex v w-full items-center sticky-top bg-night border-b border-gold mono bold'>
       <div className='flex h w-full h-full items-center'>
         <div className='nav-left flex h col-gap--- center'>
-        { navigation }
-      </div>
-      <div className='nav-center flex'>
-        <header className='page-header w-full mono gold text-center no-select'>
-          <h1>Sudoku.JS</h1>
-        </header>
-      </div>
+          { navigation }
+        </div>
+        <div className='nav-center flex'>
+          <header className='page-header w-full mono gold text-center no-select'>
+            <h1>Sudoku.JS</h1>
+          </header>
+        </div>
         <div className='nav-right flex center'>
-        <a
-          className={classNames('active-secondary use-pointer no-select', settingsOpen ? 'secondary' : 'grey hover-light')}
-          onClick={(ev) => {
-            ev.preventDefault();
-            setSettingsOpen(!settingsOpen);
-          }}
-        >
-          Settings&nbsp;<i className={classNames('anim anim-transform anim-fast fa-solid fa-gear fa-lg', {
-            'rotate--180': settingsOpen
-          })}></i>
-        </a>
+          <a
+            className={classNames('active-secondary use-pointer no-select', settingsOpen ? 'secondary' : 'grey hover-light')}
+            onClick={(ev) => {
+              ev.preventDefault();
+              setSettingsOpen(!settingsOpen);
+            }}
+          >
+            Settings&nbsp;<i className={classNames('anim anim-transform anim-fast fa-solid fa-gear fa-lg', {
+              'rotate--180': settingsOpen
+            })}></i>
+          </a>
         </div>
       </div>
     </Page.Nav>
@@ -95,6 +96,24 @@ function BasePageSettingsDrawer({ settingsOpen, setSettingsOpen }) {
             }}
           />&nbsp;Show Candidates
         </label>
+
+        <label htmlFor='puzzleSize' className='no-select flex v end items-end'>
+          Puzzle Size [{SIZES[appState.puzzleSize].name}]
+          <input
+            id='puzzleSize'
+            name='puzzleSize'
+            type='range'
+            defaultValue={appState.puzzleSize}
+            min={1}
+            max={SIZES.length - 1}
+            onChange={(ev) => {
+              setAppState({
+                ...appState,
+                puzzleSize: Number(ev.target.value)
+              });
+            }}
+          />
+        </label>
       </div>
     </div>
   );
@@ -105,7 +124,7 @@ export function BasePage({ children }) {
 
   return (
     <SettingsProvider>
-    <Page className='center'>
+      <Page className='center'>
         <BasePageNav settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
         <div className='page-main-container w-full center'>
@@ -126,8 +145,8 @@ export function BasePage({ children }) {
 
         <BasePageSettingsDrawer settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen} />
 
-      <Page.Footer className='w-full pt--- flex wrap center grey'></Page.Footer>
-    </Page>
+        <Page.Footer className='w-full pt--- flex wrap center grey'></Page.Footer>
+      </Page>
     </SettingsProvider>
   );
 }
