@@ -21,15 +21,25 @@ const Cell = React.memo(function Cell({
   className
 }) {
   const dispatch = useSudokuDispatch();
+  const {appState} = useContext(SettingsContext);
+
   /** @param {MouseEvent} ev */
   const onclick = (ev) => {
     ev.preventDefault();
     if (dispatch) {
-      dispatch({
-        type: 'setDigit',
-        cellIndex,
-        digit: (digit + 1) % 10
-      });
+      if (appState.showCandidates) {
+        dispatch({
+          type: 'setCandidates',
+          cellIndex,
+          candidates: encode(digit)
+        });
+      } else {
+        dispatch({
+          type: 'setDigit',
+          cellIndex,
+          digit: (digit + 1) % 10
+        });
+      }
     }
   };
 
@@ -37,7 +47,15 @@ const Cell = React.memo(function Cell({
   const onContextMenu = (ev) => {
     ev.preventDefault();
     if (dispatch) {
-      dispatch({ type: 'setDigit', cellIndex, digit: 0 });
+      if (appState.showCandidates) {
+        dispatch({
+          type: 'setCandidates',
+          cellIndex,
+          candidates: encode(digit)
+        });
+      } else {
+        dispatch({ type: 'setDigit', cellIndex, digit: 0 });
+      }
     }
   };
 

@@ -29,6 +29,7 @@ import React, { createContext, useContext, useReducer } from 'react';
  * @property {'setDigit' | 'addCandidate' | 'removeCandidate' | 'scramble' | 'sync'} type
  * @property {number} cellIndex
  * @property {number} digit
+ * @property {number} candidates Used with 'setCandidates'
  * @property {Sudoku} sudoku
  * @property {number[]} givens
  * @property {boolean} autoReduceCandidates
@@ -141,6 +142,12 @@ function sudokuReducer(prevState, action) {
     case 'removeCandidate': {
       if (prevState.givens[ci] > 0) break;
       newState.candidates[ci] &= ~encode(digit);
+      break;
+    }
+    case 'setCandidates': {
+      if (prevState.givens[ci] > 0) break;
+      newState.digits[ci] = 0;
+      newState.candidates[ci] = action.candidates;
       break;
     }
     case 'scramble': {

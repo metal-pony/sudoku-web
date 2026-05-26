@@ -3,7 +3,10 @@ import React, { createContext, useContext, useReducer, useState } from 'react';
 /**
  * @typedef {object} AppSettings
  * @property {number} puzzleSize
+ * @property {string} puzzleDiff
  * @property {boolean} showTimer
+ * @property {boolean} showCandidates
+ * @property {boolean} autoReduceCandidates
  */
 
 /**
