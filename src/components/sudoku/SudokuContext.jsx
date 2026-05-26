@@ -25,7 +25,7 @@ import React, { createContext, useContext, useReducer } from 'react';
 
 /**
  * @typedef {object} SudokuAction
- * @property {'setDigit' | 'addCandidate' | 'removeCandidate' | 'sync'} type
+ * @property {'setDigit' | 'addCandidate' | 'removeCandidate' | 'scramble' | 'sync'} type
  * @property {number} cellIndex
  * @property {number} digit
  * @property {Sudoku} sudoku
@@ -125,6 +125,17 @@ function sudokuReducer(prevState, action) {
     case 'removeCandidate': {
       if (prevState.givens[ci] > 0) break;
       newState.candidates[ci] &= ~encode(digit);
+      break;
+    }
+    case 'scramble': {
+      const scrambler = Sudoku.createScrambler();
+      const s1 = Sudoku.fromState(prevState);
+      const s2 = new Sudoku(prevState.givens);
+      scrambler(s1);
+      scrambler(s2);
+      newState.digits = s1.board;
+      newState.candidates = [...s1._board];
+      newState.givens = s2.board;
       break;
     }
     case 'sync': {

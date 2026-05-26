@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Sudoku } from '@metal-pony/sudoku-js';
 
-import { scrambleTogether } from '../../util/sudoku-utils';
 import { SudokuProvider, useSudoku, useSudokuDispatch } from './SudokuContext';
 import SudokuBoard from './SudokuBoard';
 import classNames from 'classnames';
@@ -95,13 +94,7 @@ export function SudokuGame({}) {
     // On resume => scramble board
     if (isPaused) {
       setAccumulatedPauseTime(accumulatedPauseTime + Date.now() - timePaused);
-
-      const scrambled = scrambleTogether([sudokuCtx.digits, sudokuCtx.givens]);
-      dispatch({
-        type: 'sync',
-        sudoku: new Sudoku(scrambled[0]),
-        givens: scrambled[1]
-      });
+      dispatch({ type: 'scramble' });
     } else {
       setTimePaused(Date.now());
     }
@@ -111,12 +104,7 @@ export function SudokuGame({}) {
   /** @param {MouseEvent} ev */
   const shuffleBtnClick = (ev) => {
     ev.preventDefault();
-    const scrambled = scrambleTogether([sudokuCtx.digits, sudokuCtx.givens]);
-    dispatch({
-      type: 'sync',
-      sudoku: new Sudoku(scrambled[0]),
-      givens: scrambled[1]
-    });
+    dispatch({ type: 'scramble' });
   };
 
   let timerText = '';

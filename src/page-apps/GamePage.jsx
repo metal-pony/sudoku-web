@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { Sudoku } from '@metal-pony/sudoku-js';
 
 import { range, shuffle, swapAllInArr } from '../util/arrays';
-import { scrambleTogether } from '../util/sudoku-utils';
 import Article from '../components/Article';
 import Page from '../components/page/Page';
 import SudokuGame from '../components/sudoku/SudokuGame';
