@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Sudoku } from '@metal-pony/sudoku-js';
+import { SPACES, Sudoku } from '@metal-pony/sudoku-js';
 
-import { scrambleTogether } from '../../util/sudoku-utils';
 import { SudokuProvider, useSudoku, useSudokuDispatch } from './SudokuContext';
 import SudokuBoard from './SudokuBoard';
 import classNames from 'classnames';
@@ -71,6 +70,9 @@ export function SudokuGame({}) {
   const newGameBtnClick = (ev) => {
     ev.preventDefault();
     const newGame = Sudoku.generatePuzzle2({ numClues: 27 });
+    for (let ci = 0; ci < SPACES; ci++) {
+      newGame._board[ci] &= ~newGame._cellConstraints(ci);
+    }
     dispatch({
       type: 'sync',
       sudoku: newGame,
@@ -95,13 +97,7 @@ export function SudokuGame({}) {
     // On resume => scramble board
     if (isPaused) {
       setAccumulatedPauseTime(accumulatedPauseTime + Date.now() - timePaused);
-
-      const scrambled = scrambleTogether([sudokuCtx.digits, sudokuCtx.givens]);
-      dispatch({
-        type: 'sync',
-        sudoku: new Sudoku(scrambled[0]),
-        givens: scrambled[1]
-      });
+      dispatch({ type: 'scramble' });
     } else {
       setTimePaused(Date.now());
     }
@@ -111,12 +107,17 @@ export function SudokuGame({}) {
   /** @param {MouseEvent} ev */
   const shuffleBtnClick = (ev) => {
     ev.preventDefault();
-    const scrambled = scrambleTogether([sudokuCtx.digits, sudokuCtx.givens]);
-    dispatch({
-      type: 'sync',
-      sudoku: new Sudoku(scrambled[0]),
-      givens: scrambled[1]
-    });
+    dispatch({ type: 'scramble' });
+  };
+
+  /** @param {MouseEvent} ev */
+  const resetCandidatesBtnClick = (ev) => {
+    ev.preventDefault();
+    const sudoku = new Sudoku(sudokuCtx.digits);
+    for (let ci = 0; ci < SPACES; ci++) {
+      sudoku._board[ci] &= ~sudoku._cellConstraints(ci);
+    }
+    dispatch({ type: 'sync', sudoku, givens: sudokuCtx.givens });
   };
 
   let timerText = '';
@@ -147,7 +148,7 @@ export function SudokuGame({}) {
   );
 
   const gameTime = (
-    <div className='flex h col-gap-'>
+    <div className='flex h col-gap- start'>
       <button
         className='w-24px h-24px clickyBtn-gold mono bold'
         onClick={pauseResumeBtnClick}
@@ -159,6 +160,19 @@ export function SudokuGame({}) {
         ref={timerTextRef}
         className={`text-center small mono ${sudokuCtx.isSolved ? 'secondary' : 'grey'}`}
       >{ timerText }</span>
+    </div>
+  );
+
+  const resetCandidates = (
+    <div className='flex h col-gap- end'>
+      <span className='text-center small mono grey'>reset candidates</span>
+      <button
+        className='w-24px h-24px clickyBtn-gold mono bold'
+        onClick={resetCandidatesBtnClick}
+        disabled={!hasStarted || sudokuCtx.isSolved}
+      >
+        <i className='fa-solid fa-rotate fa-sm'></i>
+      </button>
     </div>
   );
 
@@ -182,18 +196,22 @@ export function SudokuGame({}) {
         </button>
       </div>
 
-      <div className='flex center items-center'>
+      <div className='flex v row-gap-- center items-center'>
         <SudokuBoard
           className={classNames('anim anim-filter anim-med', {
             'blur-6': (!hasStarted || isPaused)
           })}
-          size={3}
+          size={appState.puzzleSize}
           interactive={gameInProgress && !isPaused}
+          showCandidates={appState.showCandidates}
         />
         { gameStartOverlay }
+        <div className='w-full flex h'>
+          { (hasStarted && appState.showTimer) && gameTime }
+          { appState.showCandidates && resetCandidates }
+        </div>
       </div>
 
-      { (hasStarted && appState.showTimer) && gameTime }
     </div>
   );
 }

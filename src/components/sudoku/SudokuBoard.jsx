@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { indicesFor, Sudoku } from '@metal-pony/sudoku-js';
+import { encode, indicesFor, Sudoku } from '@metal-pony/sudoku-js';
 
 import { range } from '../../util/arrays';
 import { useSudoku, useSudokuDispatch } from './SudokuContext';
+import { SettingsContext } from '../../page-apps/common/AppSettingsContext';
 
 /**
  *
@@ -20,15 +21,25 @@ const Cell = React.memo(function Cell({
   className
 }) {
   const dispatch = useSudokuDispatch();
+  const {appState} = useContext(SettingsContext);
+
   /** @param {MouseEvent} ev */
   const onclick = (ev) => {
     ev.preventDefault();
     if (dispatch) {
-      dispatch({
-        type: 'setDigit',
-        cellIndex,
-        digit: (digit + 1) % 10
-      });
+      if (appState.showCandidates) {
+        dispatch({
+          type: 'setCandidates',
+          cellIndex,
+          candidates: encode(digit)
+        });
+      } else {
+        dispatch({
+          type: 'setDigit',
+          cellIndex,
+          digit: (digit + 1) % 10
+        });
+      }
     }
   };
 
@@ -36,7 +47,15 @@ const Cell = React.memo(function Cell({
   const onContextMenu = (ev) => {
     ev.preventDefault();
     if (dispatch) {
-      dispatch({ type: 'setDigit', cellIndex, digit: 0 });
+      if (appState.showCandidates) {
+        dispatch({
+          type: 'setCandidates',
+          cellIndex,
+          candidates: encode(digit)
+        });
+      } else {
+        dispatch({ type: 'setDigit', cellIndex, digit: 0 });
+      }
     }
   };
 
@@ -55,15 +74,106 @@ const Cell = React.memo(function Cell({
 /**
  *
  * @param {object} props
+ * @param {number} props.cellIndex
+ * @param {number} props.candidates
+ * @param {number} props.digit
+ * @param {boolean} props.interactive
+ */
+const CandidateSubCell = React.memo(function CandidateSubCell({
+  cellIndex,
+  candidates,
+  digit,
+  interactive
+}) {
+  const dispatch = useSudokuDispatch();
+  const {appState} = useContext(SettingsContext);
+  const isShown = (candidates & encode(digit)) > 0;
+  const isLastCandidate = (candidates === encode(digit));
+
+  /** @param {MouseEvent} ev */
+  const onclick = (ev) => {
+    ev.preventDefault();
+    if (dispatch) {
+      const type = isLastCandidate ? 'setDigit' : (isShown ? 'removeCandidate' : 'addCandidate');
+      dispatch({
+        type, cellIndex, digit,
+        autoReduceCandidates: appState.autoReduceCandidates
+      });
+    }
+  };
+
+  /** @param {MouseEvent} ev */
+  const onContextMenu = (ev) => {
+    ev.preventDefault();
+    if (dispatch) {
+      dispatch({
+        type: 'setDigit',
+        cellIndex,
+        digit,
+        autoReduceCandidates: appState.autoReduceCandidates
+      });
+    }
+  };
+
+  return (
+    <div
+      className={classNames('sudoku-cell-candidate no-select', { interactive })}
+      onClick={interactive ? onclick : null}
+      onContextMenu={interactive ? onContextMenu : null}
+    >
+      { isShown ? digit : '' }
+    </div>
+  );
+});
+
+/**
+ *
+ * @param {object} props
+ * @param {number} props.cellIndex
+ * @param {number} props.candidates
+ * @param {boolean} props.interactive
+ * @param {string} props.className
+ */
+const CandidatesViewCell = React.memo(function CandidatesViewCell({
+  cellIndex,
+  candidates,
+  interactive,
+  className
+}) {
+  return (
+    <div
+      key={`scell-${cellIndex}`}
+      className={classNames('sudoku-cell candidates-container no-select', className, { interactive })}
+    >
+      {
+        range(9).map(di => (
+          <CandidateSubCell
+            key={`scell-${cellIndex}-candidate-${di + 1}`}
+            cellIndex={cellIndex}
+            candidates={candidates}
+            digit={di + 1}
+            interactive={interactive}
+          />
+        ))
+      }
+    </div>
+  );
+});
+
+/**
+ *
+ * @param {object} props
  * @param {number} props.size Number associated with `SIZES`. 0 (smallest) through 4 (largest). Default `2` (medium).
- * @param {boolean} props.showValidity Whether the board cells will change if a cell or area becomes invalid. Default `true`.
  * @param {boolean} props.interactive Whether the board will respond to clicks. Default `true`.
+ * @param {boolean} props.showValidity Whether the board cells will change if a cell or area becomes invalid. Default `true`.
+ * @param {boolean} props.showCandidates Whether the board cells will display individual candidates. Default `false`.
  * @param {string} props.className
  */
 export function SudokuBoard({
+  size = 2,
   interactive = true,
   showValidity = true,
-  size = 2,
+  showCandidates = false,
   className,
 }) {
   const sudokuCtx = useSudoku();
@@ -82,7 +192,15 @@ export function SudokuBoard({
     const validityClassName = (showValidity && (
       (validityMap[ci] === 0) ? '' : `invalid-${validityMap[ci]}`
     ));
-    return (
+    return (digit === 0 && showCandidates) ? (
+      <CandidatesViewCell
+        key={`scell${ci}`}
+        cellIndex={ci}
+        candidates={sudokuCtx.candidates[ci]}
+        interactive={interactive}
+        className={classNames(validityClassName)}
+      />
+    ) : (
       <Cell
         key={`scell${ci}`}
         cellIndex={ci}
@@ -106,7 +224,7 @@ export function SudokuBoard({
   return (
     <div className={classNames('flex center', className)}>
       <div
-        className={classNames('sudoku-board', SIZES[size])}
+        className={classNames('sudoku-board', SIZES[size].className)}
         onContextMenu={(ev)=>{ev.preventDefault();}}
       >
         { regions }
@@ -118,6 +236,12 @@ export function SudokuBoard({
 /**
  * Supported sizes of SudokuBoard, where higher index = larger board.
  */
-export const SIZES = ['size-xs','size-s','size-m','size-l','size-xl'];
+export const SIZES = [
+  { className: 'size-xs', name: 'XSMALL' },
+  { className: 'size-s',  name: ' SMALL' },
+  { className: 'size-m',  name: 'MEDIUM' },
+  { className: 'size-l',  name: ' LARGE' },
+  { className: 'size-xl', name: 'XLARGE' }
+];
 
 export default SudokuBoard;
