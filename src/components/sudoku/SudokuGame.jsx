@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Sudoku } from '@metal-pony/sudoku-js';
+import { SPACES, Sudoku } from '@metal-pony/sudoku-js';
 
 import { SudokuProvider, useSudoku, useSudokuDispatch } from './SudokuContext';
 import SudokuBoard from './SudokuBoard';
@@ -70,6 +70,9 @@ export function SudokuGame({}) {
   const newGameBtnClick = (ev) => {
     ev.preventDefault();
     const newGame = Sudoku.generatePuzzle2({ numClues: 27 });
+    for (let ci = 0; ci < SPACES; ci++) {
+      newGame._board[ci] &= ~newGame._cellConstraints(ci);
+    }
     dispatch({
       type: 'sync',
       sudoku: newGame,
