@@ -110,6 +110,16 @@ export function SudokuGame({}) {
     dispatch({ type: 'scramble' });
   };
 
+  /** @param {MouseEvent} ev */
+  const resetCandidatesBtnClick = (ev) => {
+    ev.preventDefault();
+    const sudoku = new Sudoku(sudokuCtx.digits);
+    for (let ci = 0; ci < SPACES; ci++) {
+      sudoku._board[ci] &= ~sudoku._cellConstraints(ci);
+    }
+    dispatch({ type: 'sync', sudoku, givens: sudokuCtx.givens });
+  };
+
   let timerText = '';
   const now = Date.now();
   if (sudokuCtx.isSolved) {
@@ -138,7 +148,7 @@ export function SudokuGame({}) {
   );
 
   const gameTime = (
-    <div className='flex h col-gap-'>
+    <div className='flex h col-gap- start'>
       <button
         className='w-24px h-24px clickyBtn-gold mono bold'
         onClick={pauseResumeBtnClick}
@@ -150,6 +160,19 @@ export function SudokuGame({}) {
         ref={timerTextRef}
         className={`text-center small mono ${sudokuCtx.isSolved ? 'secondary' : 'grey'}`}
       >{ timerText }</span>
+    </div>
+  );
+
+  const resetCandidates = (
+    <div className='flex h col-gap- end'>
+      <span className='text-center small mono grey'>reset candidates</span>
+      <button
+        className='w-24px h-24px clickyBtn-gold mono bold'
+        onClick={resetCandidatesBtnClick}
+        disabled={!hasStarted || sudokuCtx.isSolved}
+      >
+        <i className='fa-solid fa-rotate fa-sm'></i>
+      </button>
     </div>
   );
 
@@ -173,7 +196,7 @@ export function SudokuGame({}) {
         </button>
       </div>
 
-      <div className='flex center items-center'>
+      <div className='flex v row-gap-- center items-center'>
         <SudokuBoard
           className={classNames('anim anim-filter anim-med', {
             'blur-6': (!hasStarted || isPaused)
@@ -183,9 +206,12 @@ export function SudokuGame({}) {
           showCandidates={appState.showCandidates}
         />
         { gameStartOverlay }
+        <div className='w-full flex h'>
+          { (hasStarted && appState.showTimer) && gameTime }
+          { appState.showCandidates && resetCandidates }
+        </div>
       </div>
 
-      { (hasStarted && appState.showTimer) && gameTime }
     </div>
   );
 }
