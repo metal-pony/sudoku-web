@@ -25,6 +25,7 @@ function formatTimeText(timeMs) {
 }
 
 export function SudokuGame({}) {
+  /** @type {{ appState: import('../../page-apps/common/AppSettingsContext').AppSettings, setAppState: (stateChange: any)=>void }} */
   const {appState, setAppState} = useContext(SettingsContext);
   const sudokuCtx = useSudoku();
   const dispatch = useSudokuDispatch();
