@@ -72,7 +72,7 @@ function BasePageSettingsDrawer({ settingsOpen, setSettingsOpen }) {
             id='showTimer'
             name='showTimer'
             type='checkbox'
-            defaultChecked
+            defaultChecked={appState.showTimer}
             onChange={(ev) => {
               setAppState({
                 ...appState,

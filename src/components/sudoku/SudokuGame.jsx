@@ -29,7 +29,7 @@ export function SudokuGame({}) {
   const sudokuCtx = useSudoku();
   const dispatch = useSudokuDispatch();
 
-  const [timeStarted, setTimeStarted] = useState(0);
+  const [timeStarted, setTimeStarted] = useState(appState.showTimer ? 0 : Date.now());
   const [timeSolved, setTimeSolved] = useState(0);
 
   const [timePaused, setTimePaused] = useState(0);
@@ -79,7 +79,7 @@ export function SudokuGame({}) {
       givens: newGame.board
     });
     setIsPaused(false);
-    setTimeStarted(0);
+    setTimeStarted(appState.showTimer ? 0 : Date.now());
     setTimeSolved(0);
     setTimePaused(0);
     setAccumulatedPauseTime(0);
