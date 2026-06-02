@@ -12,8 +12,6 @@ const NAV_LINKS = [
 ];
 
 function BasePageNav({ settingsOpen, setSettingsOpen }) {
-  const { appState, setAppState } = useContext(SettingsContext);
-
   const navigation = NAV_LINKS.map((link, i) => (link.icon ? (
     <a
       key={`nav_link_${i}`}
@@ -60,6 +58,7 @@ function BasePageNav({ settingsOpen, setSettingsOpen }) {
 }
 
 function BasePageSettingsDrawer({ settingsOpen, setSettingsOpen }) {
+  /** @type {{ appState: import('./AppSettingsContext').AppSettings, setAppState: (stateChange: any)=>void }} */
   const { appState, setAppState } = useContext(SettingsContext);
 
   return (
@@ -75,7 +74,6 @@ function BasePageSettingsDrawer({ settingsOpen, setSettingsOpen }) {
             defaultChecked={appState.showTimer}
             onChange={(ev) => {
               setAppState({
-                ...appState,
                 showTimer: ev.target.checked
               });
             }}
@@ -90,7 +88,6 @@ function BasePageSettingsDrawer({ settingsOpen, setSettingsOpen }) {
             defaultChecked={appState.showCandidates}
             onChange={(ev) => {
               setAppState({
-                ...appState,
                 showCandidates: ev.target.checked
               });
             }}
@@ -108,7 +105,6 @@ function BasePageSettingsDrawer({ settingsOpen, setSettingsOpen }) {
             max={SIZES.length - 1}
             onChange={(ev) => {
               setAppState({
-                ...appState,
                 puzzleSize: Number(ev.target.value)
               });
             }}
