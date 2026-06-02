@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { SPACES, Sudoku } from '@metal-pony/sudoku-js';
+import { ALL, SPACES, Sudoku } from '@metal-pony/sudoku-js';
 
 import { range, shuffle, swapAllInArr } from '../util/arrays';
 import Article from '../components/Article';
@@ -9,17 +9,40 @@ import SudokuGame from '../components/sudoku/SudokuGame';
 import { SudokuProvider } from '../components/sudoku/SudokuContext';
 import BasePage from './common/BasePage';
 
+const URL_PARAM_GRID = 'grid';
+
 export function GamePage({}) {
+  /** @type {Sudoku} */
+  let grid = null;
+
+  // Load grid from URL if it's present
+  const urlParams = new URLSearchParams(location.search);
+  let usingURLGrid = urlParams.has(URL_PARAM_GRID);
+  if (usingURLGrid) {
+    const paramStr = urlParams.get(URL_PARAM_GRID).trim();
+    if (Sudoku.validateStr(paramStr)) {
+      grid = Sudoku.fromString(paramStr);
+    } else {
+      console.warn(`⚠️ Grid from URL is not valid: \'${paramStr}\'`);
+      usingURLGrid = false;
+    }
+  }
+
   // TODO generate via worker promise, then => populate state/context
-  // display some loading state while generating
-  const game = Sudoku.generatePuzzle2({ numClues: 27 });
+  // and display some loading state while generating.
+  // If no grid from URL, fallback to generation.
+  if (!grid) {
+    grid = Sudoku.generatePuzzle2({ numClues: 27 });
+  }
+
+  // Reduce grid's initial cell candidates
   for (let ci = 0; ci < SPACES; ci++) {
-    game._board[ci] &= ~game._cellConstraints(ci);
+    grid._board[ci] = ALL & ~grid._cellConstraints(ci);
   }
 
   return (
     <BasePage>
-      <SudokuProvider game={game} givens={game.board}>
+      <SudokuProvider game={grid} givens={grid.board}>
         <SudokuGame />
       </SudokuProvider>
     </BasePage>
