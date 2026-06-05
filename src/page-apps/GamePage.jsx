@@ -6,7 +6,7 @@ import { range, shuffle, swapAllInArr } from '../util/arrays';
 import Article from '../components/Article';
 import Page from '../components/page/Page';
 import SudokuGame from '../components/sudoku/SudokuGame';
-import { SudokuProvider } from '../components/sudoku/SudokuContext';
+import SudokuProvider from './common/SudokuContext';
 import BasePage from './common/BasePage';
 
 const URL_PARAM_GRID = 'grid';
@@ -42,7 +42,7 @@ export function GamePage({}) {
 
   return (
     <BasePage>
-      <SudokuProvider game={grid} givens={grid.board}>
+      <SudokuProvider initialSudoku={grid} givenDigits={grid.board}>
         <SudokuGame />
       </SudokuProvider>
     </BasePage>

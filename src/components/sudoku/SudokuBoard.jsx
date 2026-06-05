@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { encode, indicesFor, Sudoku } from '@metal-pony/sudoku-js';
 
 import { range } from '../../util/arrays';
-import { useSudoku, useSudokuDispatch } from './SudokuContext';
+import { SudokuContext } from '../../page-apps/common/SudokuContext';
 import { SettingsContext } from '../../page-apps/common/AppSettingsContext';
 
 /**
@@ -20,42 +20,28 @@ const Cell = React.memo(function Cell({
   interactive,
   className
 }) {
-  const dispatch = useSudokuDispatch();
   const {appState} = useContext(SettingsContext);
+
+  /** @type {{sudokuState: import('../../page-apps/common/SudokuContext').SudokuState}} */
+  const {sudokuState} = useContext(SudokuContext);
 
   /** @param {MouseEvent} ev */
   const onclick = (ev) => {
     ev.preventDefault();
-    if (dispatch) {
-      if (appState.showCandidates) {
-        dispatch({
-          type: 'setCandidates',
-          cellIndex,
-          candidates: encode(digit)
-        });
-      } else {
-        dispatch({
-          type: 'setDigit',
-          cellIndex,
-          digit: (digit + 1) % 10
-        });
-      }
+    if (appState.showCandidates) {
+      sudokuState.setCandidates(cellIndex, encode(digit));
+    } else {
+      sudokuState.setDigit(cellIndex, (digit + 1) % 10);
     }
   };
 
   /** @param {MouseEvent} ev */
   const onContextMenu = (ev) => {
     ev.preventDefault();
-    if (dispatch) {
-      if (appState.showCandidates) {
-        dispatch({
-          type: 'setCandidates',
-          cellIndex,
-          candidates: encode(digit)
-        });
-      } else {
-        dispatch({ type: 'setDigit', cellIndex, digit: 0 });
-      }
+    if (appState.showCandidates) {
+      sudokuState.setCandidates(cellIndex, encode(digit));
+    } else {
+      sudokuState.setDigit(cellIndex, 0);
     }
   };
 
@@ -85,34 +71,30 @@ const CandidateSubCell = React.memo(function CandidateSubCell({
   digit,
   interactive
 }) {
-  const dispatch = useSudokuDispatch();
   const {appState} = useContext(SettingsContext);
+  /** @type {{sudokuState: import('../../page-apps/common/SudokuContext').SudokuState}} */
+  const {sudokuState} = useContext(SudokuContext);
   const isShown = (candidates & encode(digit)) > 0;
   const isLastCandidate = (candidates === encode(digit));
 
   /** @param {MouseEvent} ev */
   const onclick = (ev) => {
     ev.preventDefault();
-    if (dispatch) {
-      const type = isLastCandidate ? 'setDigit' : (isShown ? 'removeCandidate' : 'addCandidate');
-      dispatch({
-        type, cellIndex, digit,
-        autoReduceCandidates: appState.autoReduceCandidates
-      });
+    if (isLastCandidate) {
+      sudokuState.setDigit(cellIndex, digit);
+    } else {
+      if (isShown) {
+        sudokuState.removeCandidate(cellIndex, digit);
+      } else {
+        sudokuState.addCandidate(cellIndex, digit);
+      }
     }
   };
 
   /** @param {MouseEvent} ev */
   const onContextMenu = (ev) => {
     ev.preventDefault();
-    if (dispatch) {
-      dispatch({
-        type: 'setDigit',
-        cellIndex,
-        digit,
-        autoReduceCandidates: appState.autoReduceCandidates
-      });
-    }
+    sudokuState.setDigit(cellIndex, digit);
   };
 
   return (
@@ -176,8 +158,12 @@ export function SudokuBoard({
   showCandidates = false,
   className,
 }) {
-  const sudokuCtx = useSudoku();
-  const game = new Sudoku(sudokuCtx.digits);
+  /**
+   * @type {{sudokuState: import('../../page-apps/common/SudokuContext').SudokuState}}
+   */
+  const {sudokuState} = useContext(SudokuContext);
+  const game = sudokuState.sudoku;
+  const isSolved = game.isSolved();
 
   const [state, setState] = useState({
     selectedCell: 0,
@@ -185,10 +171,10 @@ export function SudokuBoard({
     pickedDigit: 0
   });
 
-  const validityMap = game.cellValidityMap;
+  const validityMap = new Sudoku(game.board).cellValidityMap;
 
-  const cells = sudokuCtx.digits.map((digit,ci) => {
-    const given = sudokuCtx.givens[ci];
+  const cells = game.board.map((digit,ci) => {
+    const given = sudokuState.givens[ci];
     const validityClassName = (showValidity && (
       (validityMap[ci] === 0) ? '' : `invalid-${validityMap[ci]}`
     ));
@@ -196,7 +182,7 @@ export function SudokuBoard({
       <CandidatesViewCell
         key={`scell${ci}`}
         cellIndex={ci}
-        candidates={sudokuCtx.candidates[ci]}
+        candidates={game._board[ci]}
         interactive={interactive}
         className={classNames(validityClassName)}
       />
@@ -209,7 +195,7 @@ export function SudokuBoard({
         interactive={interactive && !given}
         className={classNames(validityClassName, {
           given,
-          solved: sudokuCtx.isSolved
+          solved: isSolved
         })}
       />
     );
