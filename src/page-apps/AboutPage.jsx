@@ -1,6 +1,7 @@
 import React from 'react';
 import Article from '../components/Article';
 import BasePage from './common/BasePage';
+import { sudoku17 } from '@metal-pony/sudoku-js';
 
 const iconCheck = (<i className='fa-solid fa-check secondary'></i>);
 const libRepoLink = (
@@ -66,6 +67,9 @@ function ChangeBlogEntry({ title, date, items, children }) {
 }
 
 export function AboutPage({}) {
+  const randomSudoku = sudoku17[Math.trunc(Math.random() * sudoku17.length)];
+  const randomSudokuLink = `https://metal-pony.github.io/sudoku-web/?grid=${randomSudoku.toString()}`;
+
   return (
     <BasePage>
       <div className='flex v row-gap---'>
@@ -87,6 +91,46 @@ export function AboutPage({}) {
           </Article.Header>
 
           <div className='pt-- px-- flex v row-gap-'>
+            <ChangeBlogEntry
+              title='Undo'
+              date='June 5th, 2026'
+              items={[
+                'A history of game move is now tracked',
+                'Added an \'undo\' button to rollback a step in game history',
+              ]}
+            >
+              <p>It's easy to misclick on a candidate and set a cell digit unintentionally. A frustrating side-effect is that neighboring cell's candidates are also automatically reduced unintentionally. To help correct this, changes to the game board are tracked in a history stack. There's a button since last update to reset all of the board's candidates, and now there's another button to undo the previous move.</p>
+              <p>Note there may be some quirkiness regarding the game history and shuffling.</p>
+            </ChangeBlogEntry>
+
+            <ChangeBlogEntry
+              title='Settings Saved'
+              date='June 2nd, 2026'
+              items={[
+                'Settings are now saved in localStorage between sessions',
+                'Grids can be loaded via URL',
+              ]}
+            >
+              <p>
+                An important feature is sharing and loading puzzles. So to start, grids can now be loaded from the 'grid' url parameter.
+                Example: ^<a className='link' href={randomSudokuLink} target='_blank'>{randomSudokuLink}</a>
+              </p>
+            </ChangeBlogEntry>
+
+            <ChangeBlogEntry
+              title='Candidates View'
+              date='May 26th, 2026'
+              items={[
+                'Cell candidates can be shown via settings',
+                'Puzzle size can be adjusted via settings',
+                'Left-clicking a candidate toggles its visibility; when it\'s the last one, it sets the cell digit instead',
+                'Right-clicking a candidate will set cell digit',
+                'Left or Right-clicking a cell with a digit reverts the cell to show candidates',
+                'Candidates will automatically reduce in neighboring cells when a digit is set',
+                'Added a button to reset all candidates',
+              ]}
+            />
+
             <ChangeBlogEntry
               title='Pause'
               date='May 15th, 2026'
