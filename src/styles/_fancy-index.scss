@@ -60,14 +60,6 @@ a {
   text-decoration: none;
 }
 
-a.link {
-  color: var(--link-color);
-
-  &:visited {
-    color: var(--link-color-visited);
-  }
-}
-
 em {
   font-style: italic;
 }
@@ -218,6 +210,14 @@ em {
 .white {
   color: white;
   & a { color: white; }
+}
+
+a.link {
+  color: var(--link-color);
+
+  &:visited {
+    color: var(--link-color-visited);
+  }
 }
 
 .use-pointer {

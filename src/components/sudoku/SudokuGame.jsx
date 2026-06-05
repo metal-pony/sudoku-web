@@ -1,7 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { SPACES, Sudoku } from '@metal-pony/sudoku-js';
+import {
+  ALL,
+  encode,
+  SPACES,
+  Sudoku
+} from '@metal-pony/sudoku-js';
 
-import { SudokuProvider, useSudoku, useSudokuDispatch } from './SudokuContext';
+import { SudokuContext } from '../../page-apps/common/SudokuContext';
 import SudokuBoard from './SudokuBoard';
 import classNames from 'classnames';
 import { SettingsContext } from '../../page-apps/common/AppSettingsContext';
@@ -27,8 +32,10 @@ function formatTimeText(timeMs) {
 export function SudokuGame({}) {
   /** @type {{ appState: import('../../page-apps/common/AppSettingsContext').AppSettings, setAppState: (stateChange: any)=>void }} */
   const {appState, setAppState} = useContext(SettingsContext);
-  const sudokuCtx = useSudoku();
-  const dispatch = useSudokuDispatch();
+
+  /** @type {{ sudokuState: import('../../page-apps/common/SudokuContext').SudokuState }} */
+  const {sudokuState} = useContext(SudokuContext);
+  const sudoku = sudokuState.sudoku;
 
   const [timeStarted, setTimeStarted] = useState(appState.showTimer ? 0 : Date.now());
   const [timeSolved, setTimeSolved] = useState(0);
@@ -38,7 +45,7 @@ export function SudokuGame({}) {
   const [isPaused, setIsPaused] = useState(false);
 
   const hasStarted = (timeStarted > 0);
-  const gameInProgress = (hasStarted && !sudokuCtx.isSolved);
+  const gameInProgress = (hasStarted && !sudoku.isSolved());
 
   /** @type {React.RefObject<HTMLSpanElement>} */
   const timerTextRef = useRef(null);
@@ -74,11 +81,8 @@ export function SudokuGame({}) {
     for (let ci = 0; ci < SPACES; ci++) {
       newGame._board[ci] &= ~newGame._cellConstraints(ci);
     }
-    dispatch({
-      type: 'sync',
-      sudoku: newGame,
-      givens: newGame.board
-    });
+
+    sudokuState.sync(newGame, newGame.board, true);
     setIsPaused(false);
     setTimeStarted(appState.showTimer ? 0 : Date.now());
     setTimeSolved(0);
@@ -93,12 +97,12 @@ export function SudokuGame({}) {
 
     // Unless the game is active, the button should not be rendered.
     // But ensure clicking it does nothing.
-    if (!hasStarted || sudokuCtx.isSolved) return;
+    if (!hasStarted || sudoku.isSolved()) return;
 
     // On resume => scramble board
     if (isPaused) {
       setAccumulatedPauseTime(accumulatedPauseTime + Date.now() - timePaused);
-      dispatch({ type: 'scramble' });
+      sudokuState.scramble();
     } else {
       setTimePaused(Date.now());
     }
@@ -108,22 +112,32 @@ export function SudokuGame({}) {
   /** @param {MouseEvent} ev */
   const shuffleBtnClick = (ev) => {
     ev.preventDefault();
-    dispatch({ type: 'scramble' });
+    sudokuState.scramble();
   };
 
   /** @param {MouseEvent} ev */
   const resetCandidatesBtnClick = (ev) => {
     ev.preventDefault();
-    const sudoku = new Sudoku(sudokuCtx.digits);
+    const newSudoku = new Sudoku(sudoku);
     for (let ci = 0; ci < SPACES; ci++) {
-      sudoku._board[ci] &= ~sudoku._cellConstraints(ci);
+      const digit = newSudoku.getDigit(ci);
+      newSudoku._board[ci] = ((digit > 0) ?
+        encode(digit) :
+        (ALL & ~newSudoku._cellConstraints(ci))
+      );
     }
-    dispatch({ type: 'sync', sudoku, givens: sudokuCtx.givens });
+    sudokuState.sync(newSudoku, sudokuState.givens, false);
+  };
+
+  /** @param {MouseEvent} ev */
+  const undoBtnClick = (ev) => {
+    ev.preventDefault();
+    sudokuState.undo();
   };
 
   let timerText = '';
   const now = Date.now();
-  if (sudokuCtx.isSolved) {
+  if (sudoku.isSolved()) {
     if (timeSolved === 0) setTimeSolved(now);
     if (timeStarted === 0) setTimeStarted(now);
 
@@ -153,13 +167,13 @@ export function SudokuGame({}) {
       <button
         className='w-24px h-24px clickyBtn-gold mono bold'
         onClick={pauseResumeBtnClick}
-        disabled={!hasStarted || sudokuCtx.isSolved}
+        disabled={!hasStarted || sudoku.isSolved()}
       >
         <i className={`fa-solid fa-${isPaused ? 'play' : 'pause'}`}></i>
       </button>
       <span
         ref={timerTextRef}
-        className={`text-center small mono ${sudokuCtx.isSolved ? 'secondary' : 'grey'}`}
+        className={`text-center small mono ${sudoku.isSolved() ? 'secondary' : 'grey'}`}
       >{ timerText }</span>
     </div>
   );
@@ -170,9 +184,22 @@ export function SudokuGame({}) {
       <button
         className='w-24px h-24px clickyBtn-gold mono bold'
         onClick={resetCandidatesBtnClick}
-        disabled={!hasStarted || sudokuCtx.isSolved}
+        disabled={!hasStarted || sudoku.isSolved()}
       >
         <i className='fa-solid fa-rotate fa-sm'></i>
+      </button>
+    </div>
+  );
+
+  const undoBtn = (
+    <div className='flex h col-gap- end'>
+      <span className='text-center small mono grey'>undo</span>
+      <button
+        className='w-24px h-24px clickyBtn-gold mono bold'
+        onClick={undoBtnClick}
+        disabled={!hasStarted || sudoku.isSolved() || sudokuState.history.length === 0}
+      >
+        <i className='fa-solid fa-rotate-left fa-sm'></i>
       </button>
     </div>
   );
@@ -198,18 +225,23 @@ export function SudokuGame({}) {
       </div>
 
       <div className='flex v row-gap-- center items-center'>
-        <SudokuBoard
-          className={classNames('anim anim-filter anim-med', {
-            'blur-6': (!hasStarted || isPaused)
-          })}
-          size={appState.puzzleSize}
-          interactive={gameInProgress && !isPaused}
-          showCandidates={appState.showCandidates}
-        />
-        { gameStartOverlay }
+        <div className='flex v row-gap-- center items-center'>
+          <SudokuBoard
+            className={classNames('anim anim-filter anim-med', {
+              'blur-6': (!hasStarted || isPaused)
+            })}
+            size={appState.puzzleSize}
+            interactive={gameInProgress && !isPaused}
+            showCandidates={appState.showCandidates}
+          />
+          { gameStartOverlay }
+        </div>
         <div className='w-full flex h'>
           { (hasStarted && appState.showTimer) && gameTime }
           { appState.showCandidates && resetCandidates }
+        </div>
+        <div className='w-full flex h'>
+          { undoBtn }
         </div>
       </div>
 
